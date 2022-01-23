@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cấu hình kết nối wifi</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <style>
+    .config {
+      position: absolute;
+      width: 50%;
+      height: 50%;
+      top: 40%;
+      left: 25%;
+    }
+    .btn_center {
+      align-items: center;
+      text-align: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container config">
+    <button class="btn btn-primary btn-block" id="scan_wifi">Quét ssid</button>
+    <br />
+    <form>
+      <div class="form-group">
+        <label for="t">Lựa chọn ssid</label>
+        <select id="select_ssid" class="form-select form-control" aria-label="Default select example">
+          
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="password">Mật khẩu:</label>
+        <input type="password" class="form-control" id="password" />
+      </div>
+      <div class="form-group">
+        <button class="btn btn-primary btn-block" id="send">Gửi</button>
+      </div>
+    </form>
+  </div>
+  <script>
+    window.addEventListener("load", () => {
+      let button_scan_wifi = document.getElementById("scan_wifi");
+      let button_send_form = document.getElementById("send");
+      let content = document.getElementById("select_ssid");
+      let password_input = document.getElementById("password");
+      let select_ssid = document.getElementById("select_ssid");
+      // Lắng nghe sự kiện nhấn nút scan
+      button_scan_wifi.addEventListener("click", () => {
+        let xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+          if (this.readyState == 4 && this.status == 200) {
+            let json = JSON.parse(this.responseText);
+            let arrs = json.arrs;
+            arrs.forEach((ssid) => {
+              content.innerHTML += "<option value=" + "'" + ssid + "'" + " >" + ssid + "</option>";
+            });
+          }
+        }
+
+        xhttp.open("POST", "/scan_wifi", true);
+        xhttp.send();
+      });
+
+      // Lắng nghe sự kiện nhấn nút gửi
+      button_send_form.addEventListener("click", (e) => {
+        e.preventDefault();
+        let password = password_input.value;
+        let ssid = select_ssid.value;
+        if (ssid.length === 0) {
+          alert("SSID không được để trống");
+          return;
+        }
+        if (password.length === 0) {
+          alert("Mật khẩu không được để trống");
+          return;
+        }
+
+        let xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+          
+        }
+
+        xhttp.open("POST", "/update_ssid");
+        xhttp.setRequestHeader("Content-Type", "application/json");
+        xhttp.send(JSON.stringify({
+          ssid,
+          password
+        }));
+      });
+    }); 
+  </script>
+</body>
+</html>
